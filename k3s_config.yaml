@@ -1,0 +1,6 @@
+write-kubeconfig-mode: "0644"
+tls-san:
+- "mesh.local"
+resolv-conf: "/run/systemd/resolve/resolv.conf"
+disable:
+- traefik

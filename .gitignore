@@ -1,0 +1,4 @@
+bin/
+lib/
+k8s/**/*.yaml
+*.pb.go

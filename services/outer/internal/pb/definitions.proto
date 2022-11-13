@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "github.com/angelini/mesh/services/outer/pb";
+
+service Outer {
+    rpc Quote(QuoteRequest) returns (QuoteResponse);
+}
+
+message QuoteRequest {
+    string input = 1;
+}
+
+message QuoteResponse {
+    string output = 1;
+}
