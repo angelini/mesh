@@ -13,6 +13,7 @@ RUN useradd -ms /bin/bash main
 USER main
 WORKDIR /home/main
 
-COPY bin/outer outer
+COPY bin/envoy envoy
+COPY config.yaml config.yaml
 
-ENTRYPOINT ["./outer"]
+ENTRYPOINT ["./envoy", "-c", "config.yaml"]

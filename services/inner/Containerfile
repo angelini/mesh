@@ -1,10 +1,11 @@
 FROM ubuntu:22.04
 
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
         curl \
         dnsutils \
-        nodejs \
+        less \
+        net-tools \
     && \
     rm -rf /var/lib/apt/lists/*
 

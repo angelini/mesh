@@ -32,5 +32,5 @@ local appLabels = {
     name=name + '-service',
     selector=appLabels { name: name },
     ports=[servicePort.new(service_port, 'grpc-port') + servicePort.withProtocol('TCP')]
-  ),
+  ) + service.spec.withClusterIP('None'),
 ]
