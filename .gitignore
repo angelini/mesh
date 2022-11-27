@@ -1,4 +1,5 @@
 bin/
+dev/
 lib/
 k8s/**/*.yaml
 *.pb.go

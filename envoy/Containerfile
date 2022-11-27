@@ -13,7 +13,12 @@ RUN useradd -ms /bin/bash main
 USER main
 WORKDIR /home/main
 
-COPY bin/envoy envoy
-COPY config.yaml config.yaml
+RUN mkdir -p secrets
+VOLUME secrets/tls
 
-ENTRYPOINT ["./envoy", "-c", "config.yaml"]
+RUN mkdir -p configs
+VOLUME configs/envoy
+
+COPY bin/envoy envoy
+
+ENTRYPOINT ["./envoy", "-c", "configs/envoy/config.yaml"]

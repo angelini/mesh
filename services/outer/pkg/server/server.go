@@ -1,7 +1,8 @@
 package server
 
 import (
-	"github.com/angelini/mesh/services/outer/internal/pb"
+	innerc "github.com/angelini/mesh/services/inner/pkg/client"
+	pb "github.com/angelini/mesh/services/outer/internal/outerpb"
 	"github.com/angelini/mesh/services/outer/pkg/api"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -10,7 +11,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func NewServer(log *zap.Logger) *grpc.Server {
+func NewServer(log *zap.Logger, innerClient *innerc.Client) *grpc.Server {
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(
 			grpc_middleware.ChainUnaryServer(
@@ -26,7 +27,7 @@ func NewServer(log *zap.Logger) *grpc.Server {
 		),
 	)
 
-	outerApi := api.NewOuterApi(log)
+	outerApi := api.NewOuterApi(log, innerClient)
 	pb.RegisterOuterServer(grpcServer, outerApi)
 
 	return grpcServer

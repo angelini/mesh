@@ -3,12 +3,15 @@ module github.com/angelini/mesh/services/outer
 go 1.19
 
 require (
+	github.com/angelini/mesh/services/inner v0.0.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/spf13/cobra v1.6.1
 	go.uber.org/zap v1.23.0
 	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.27.1
 )
+
+replace github.com/angelini/mesh/services/inner v0.0.1 => ../inner
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect

@@ -8,20 +8,24 @@ endef
 
 .PHONY: build container
 
-internal/pb/%.pb.go: internal/pb/%.proto
+CMD_GO_FILES := $(shell find cmd/ -type f -name '*.go')
+PKG_GO_FILES := $(shell find pkg/ -type f -name '*.go')
+INTERNAL_GO_FILES := $(shell find internal/ -type f -name '*.go')
+
+internal/innerpb/%.pb.go: internal/innerpb/%.proto
 	protoc --experimental_allow_proto3_optional --go_out=. --go_opt=paths=source_relative $^
 
-internal/pb/%_grpc.pb.go: internal/pb/%.proto
+internal/innerpb/%_grpc.pb.go: internal/innerpb/%.proto
 	protoc --experimental_allow_proto3_optional --go-grpc_out=. --go-grpc_opt=paths=source_relative $^
 
-bin/inner:
+bin/inner: $(CMD_GO_FILES) $(PKG_GO_FILES) $(INTERNAL_GO_FILES)
 	$(call section, Build inner binary)
 	@mkdir -p bin
-	go build -o bin/inner main.go
+	go mod tidy
+	GOOS=linux GOARCH=amd64 go build -o bin/inner main.go
 
-build: internal/pb/definitions.pb.go internal/pb/definitions_grpc.pb.go bin/inner
+build: internal/innerpb/definitions.pb.go internal/innerpb/definitions_grpc.pb.go bin/inner
 
-container: export BUILDAH_LAYERS=true
 container: build
 	$(call section, Build inner image)
-	buildah build -f Containerfile -t mesh.local/inner:latest
+	docker buildx build -f Containerfile -t mesh.local/inner:latest --platform linux/amd64 .

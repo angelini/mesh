@@ -17,8 +17,7 @@ bin/envoy:
 
 install: bin/envoy
 
-container: export BUILDAH_LAYERS=true
-container:
+container: install
 	$(call section, Build envoy image)
-	buildah build -f Containerfile -t mesh.local/envoy:latest
+	docker buildx build -f Containerfile -t mesh.local/envoy:latest --platform linux/amd64 .
 

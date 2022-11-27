@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/angelini/mesh/services/inner/internal/pb"
+	pb "github.com/angelini/mesh/services/inner/internal/innerpb"
 	"github.com/angelini/mesh/services/inner/pkg/api"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"

@@ -1,63 +1,61 @@
 admin:
   address:
-    socket_address: { address: 127.0.0.1, port_value: 1090 }
+    socket_address:
+      address: 0.0.0.0
+      port_value: 1090
 
 static_resources:
   listeners:
-  - name: inner
-    address:
-      socket_address: { address: 127.0.0.1, port_value: 1080 }
-    filter_chains:
-    - filters:
-      - name: envoy.filters.network.http_connection_manager
-        typed_config:
-          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
-          stat_prefix: ingress_http
-          codec_type: AUTO
-          access_log:
-          - name: envoy.access_loggers.stdout
+    - name: services
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 1080
+      filter_chains:
+        - filters:
+            - name: envoy.filters.network.http_connection_manager
+              typed_config:
+                "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+                stat_prefix: ingress_http
+                codec_type: AUTO
+                access_log:
+                  - name: envoy.access_loggers.stdout
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
+                route_config:
+                  name: services-routes
+                  virtual_hosts:
+                    - name: services
+                      domains: ["*"]
+                      routes:
+                        - match: { prefix: "/" }
+                          route: { cluster: outer-service }
+                http_filters:
+                  - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+          transport_socket:
+            name: envoy.transport_sockets.tls
             typed_config:
-              "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
-          route_config:
-            name: inner-route
-            virtual_hosts:
-            - name: inner-route
-              domains: ["*"]
-              routes:
-              - match: { prefix: "/" }
-                route: { cluster: outer-service }
-          http_filters:
-          - name: envoy.filters.http.router
-            typed_config:
-              "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+              common_tls_context:
+                tls_certificates:
+                  - certificate_chain: { filename: "secrets/tls/tls.crt" }
+                    private_key: { filename: "secrets/tls/tls.key" }
+
   clusters:
-  - name: inner-service
-    connect_timeout: 0.25s
-    type: STRICT_DNS
-    dns_lookup_family: V4_ONLY
-    lb_policy: ROUND_ROBIN
-    http2_protocol_options: {}
-    load_assignment:
-      cluster_name: inner-service
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address:
-              socket_address:
-                address: inner-service.mesh.svc.cluster.local
-                port_value: 2080
-  - name: outer-service
-    connect_timeout: 0.25s
-    type: STRICT_DNS
-    dns_lookup_family: V4_ONLY
-    lb_policy: ROUND_ROBIN
-    http2_protocol_options: {}
-    load_assignment:
-      cluster_name: outer-service
-      endpoints:
-      - lb_endpoints:
-        - endpoint:
-            address:
-              socket_address:
-                address: outer-service.mesh.svc.cluster.local
-                port_value: 2080
+    - name: outer-service
+      connect_timeout: 0.25s
+      type: STRICT_DNS
+      dns_lookup_family: V4_ONLY
+      lb_policy: ROUND_ROBIN
+      http2_protocol_options: {}
+      load_assignment:
+        cluster_name: outer-service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: outer-service.mesh.svc.cluster.local
+                      port_value: 2080

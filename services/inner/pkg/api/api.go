@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 
-	"github.com/angelini/mesh/services/inner/internal/pb"
+	pb "github.com/angelini/mesh/services/inner/internal/innerpb"
 	"go.uber.org/zap"
 )
 
@@ -20,6 +20,8 @@ func NewInnerApi(log *zap.Logger) *InnerApi {
 }
 
 func (a *InnerApi) Reverse(ctx context.Context, req *pb.ReverseRequest) (*pb.ReverseResponse, error) {
+	a.log.Info("Reverse", zap.String("input", req.Input))
+
 	runes := []rune(req.Input)
 	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
 		runes[i], runes[j] = runes[j], runes[i]
